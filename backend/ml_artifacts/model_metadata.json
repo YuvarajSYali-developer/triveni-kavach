@@ -1,0 +1,280 @@
+{
+  "source_csv": "enhanced_animal_disease.csv",
+  "source_csv_sha256": "204990488c48ecab029862a548e2906ef809854ecb4a8b7791260b812240d4b6",
+  "rows": 8000,
+  "symptoms": [
+    "Vomiting",
+    "Diarrhea",
+    "Appetite_Loss",
+    "Bloat_Distension",
+    "Dehydration",
+    "Coughing",
+    "Sneezing",
+    "Nasal_Discharge",
+    "Resp_Distress",
+    "Lethargy",
+    "Fever_Chills",
+    "Weight_Loss",
+    "Pale_Gums",
+    "Jaundice",
+    "Lameness",
+    "Swelling",
+    "Stiff_Joints",
+    "Skin_Lesions",
+    "Hair_Loss",
+    "Blisters",
+    "Pustules",
+    "Seizures",
+    "Tremors",
+    "Uncoordinated",
+    "Aggression",
+    "Restlessness",
+    "Rolling",
+    "Hard_Pads",
+    "Eye_Discharge",
+    "Excess_Saliva",
+    "Swollen_Lymph_Nodes",
+    "Sweating",
+    "Straining_Urinate",
+    "Red_Urine"
+  ],
+  "species": {
+    "Cat": {
+      "rows": 1522,
+      "labels": {
+        "Feline Panleukopenia": 392,
+        "Feline FLUTD (Urinary)": 380,
+        "Cat Flu (URI)": 368,
+        "Gastroenteritis (General)": 141,
+        "Healthy": 109,
+        "Internal Parasites": 68,
+        "Rabies": 64
+      },
+      "vital_ranges": {
+        "Body_Temperature": [
+          38.0,
+          41.5
+        ],
+        "Heart_Rate": [
+          100.0,
+          238.0
+        ],
+        "Respiratory_Rate": [
+          20.0,
+          79.0
+        ],
+        "Activity_Level": [
+          0.0,
+          99.0
+        ]
+      }
+    },
+    "Cow": {
+      "rows": 957,
+      "labels": {
+        "Milk Fever (Hypocalcemia)": 376,
+        "Bovine Mastitis": 136,
+        "Healthy": 113,
+        "Bloat": 103,
+        "Foot and Mouth": 90,
+        "Rabies": 76,
+        "Internal Parasites": 63
+      },
+      "vital_ranges": {
+        "Body_Temperature": [
+          36.0,
+          42.0
+        ],
+        "Heart_Rate": [
+          48.0,
+          157.0
+        ],
+        "Respiratory_Rate": [
+          10.0,
+          89.0
+        ],
+        "Activity_Level": [
+          0.0,
+          99.0
+        ]
+      }
+    },
+    "Dog": {
+      "rows": 1682,
+      "labels": {
+        "K9 Distemper": 407,
+        "Heartworm Disease": 384,
+        "K9 Parvovirus": 214,
+        "Lyme Disease": 170,
+        "Gastroenteritis (General)": 141,
+        "Tetanus": 120,
+        "Healthy": 102,
+        "Rabies": 82,
+        "Internal Parasites": 62
+      },
+      "vital_ranges": {
+        "Body_Temperature": [
+          38.0,
+          41.5
+        ],
+        "Heart_Rate": [
+          60.0,
+          178.0
+        ],
+        "Respiratory_Rate": [
+          10.0,
+          79.0
+        ],
+        "Activity_Level": [
+          0.0,
+          99.0
+        ]
+      }
+    },
+    "Fox": {
+      "rows": 269,
+      "labels": {
+        "K9 Parvovirus": 187,
+        "Rabies": 82
+      },
+      "vital_ranges": {
+        "Body_Temperature": [
+          38.5,
+          41.5
+        ],
+        "Heart_Rate": [
+          80.0,
+          179.0
+        ],
+        "Respiratory_Rate": [
+          20.0,
+          78.0
+        ],
+        "Activity_Level": [
+          0.0,
+          99.0
+        ]
+      }
+    },
+    "Goat": {
+      "rows": 475,
+      "labels": {
+        "Bloat": 132,
+        "Bovine Mastitis": 123,
+        "Healthy": 87,
+        "Foot and Mouth": 86,
+        "Internal Parasites": 47
+      },
+      "vital_ranges": {
+        "Body_Temperature": [
+          38.5,
+          42.0
+        ],
+        "Heart_Rate": [
+          70.0,
+          139.0
+        ],
+        "Respiratory_Rate": [
+          15.0,
+          89.0
+        ],
+        "Activity_Level": [
+          10.0,
+          99.0
+        ]
+      }
+    },
+    "Horse": {
+      "rows": 1750,
+      "labels": {
+        "Strangles": 401,
+        "Laminitis": 395,
+        "Colic": 389,
+        "Lyme Disease": 199,
+        "Tetanus": 109,
+        "Healthy": 99,
+        "Rabies": 82,
+        "Internal Parasites": 76
+      },
+      "vital_ranges": {
+        "Body_Temperature": [
+          37.2,
+          41.0
+        ],
+        "Heart_Rate": [
+          28.0,
+          159.0
+        ],
+        "Respiratory_Rate": [
+          10.0,
+          79.0
+        ],
+        "Activity_Level": [
+          0.0,
+          99.0
+        ]
+      }
+    },
+    "Pig": {
+      "rows": 677,
+      "labels": {
+        "Swine Erysipelas": 371,
+        "Gastroenteritis (General)": 120,
+        "Healthy": 107,
+        "Foot and Mouth": 79
+      },
+      "vital_ranges": {
+        "Body_Temperature": [
+          38.5,
+          42.0
+        ],
+        "Heart_Rate": [
+          60.0,
+          159.0
+        ],
+        "Respiratory_Rate": [
+          10.0,
+          69.0
+        ],
+        "Activity_Level": [
+          10.0,
+          99.0
+        ]
+      }
+    },
+    "Sheep": {
+      "rows": 668,
+      "labels": {
+        "Tetanus": 139,
+        "Bloat": 128,
+        "Bovine Mastitis": 128,
+        "Healthy": 117,
+        "Foot and Mouth": 82,
+        "Internal Parasites": 74
+      },
+      "vital_ranges": {
+        "Body_Temperature": [
+          38.5,
+          42.0
+        ],
+        "Heart_Rate": [
+          70.0,
+          139.0
+        ],
+        "Respiratory_Rate": [
+          15.0,
+          89.0
+        ],
+        "Activity_Level": [
+          0.0,
+          99.0
+        ]
+      }
+    }
+  },
+  "observations": {
+    "healthy_rows_with_any_symptom": 0,
+    "non_healthy_rows_without_symptoms": 0,
+    "duplicate_rows": 2
+  }
+}

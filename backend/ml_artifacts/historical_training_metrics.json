@@ -1,0 +1,10 @@
+{
+  "dataset": "enhanced_animal_disease.csv",
+  "rows": 8000,
+  "features": 46,
+  "classes": 20,
+  "accuracy": 0.9891666666666666,
+  "balanced_accuracy": 0.9885454321466114,
+  "macro_f1": 0.9887491180395733,
+  "trained_at": "2026-02-04T10:16:41.183751Z"
+}

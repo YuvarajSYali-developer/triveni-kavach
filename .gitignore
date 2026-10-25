@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Local databases and secrets
+*.db
+*.db-journal
+.env
+.env.*
+!.env.example
+
+# Node / build output
+node_modules/
+dist/
+*.tsbuildinfo
+
+# End-to-end screenshots
+e2e/screenshots/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

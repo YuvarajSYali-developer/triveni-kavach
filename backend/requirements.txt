@@ -1,0 +1,25 @@
+# Web / API
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+pydantic==2.10.4
+pydantic-settings==2.7.1
+email-validator==2.2.0
+python-multipart==0.0.20
+
+# Database
+SQLAlchemy==2.0.36
+alembic==1.14.0
+# Optional PostgreSQL driver (only needed when DATABASE_URL points at PostgreSQL)
+psycopg[binary]==3.2.3
+
+# Auth
+PyJWT==2.10.1
+bcrypt==4.2.1
+
+# Reused animal-health model (versions match the environment that produced the
+# artifacts: LabelEncoder pickled with scikit-learn 1.7.1, model with xgboost 3.1.x)
+pandas==3.0.0
+numpy==2.4.2
+scikit-learn==1.7.1
+joblib==1.5.3
+xgboost==3.1.3
