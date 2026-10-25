@@ -29,7 +29,7 @@ async function login(email) {
   await page.getByLabel('E-mail').fill(email);
   await page.getByLabel('Password').fill(PASSWORD);
   await page.getByRole('button', { name: 'Sign in' }).click();
-  await page.waitForURL(`${BASE}/`);
+  await page.waitForURL(`${BASE}/dashboard`);
 }
 async function logout() { await page.getByRole('button', { name: /Sign out/ }).click(); await page.waitForURL(/login/); }
 async function addRecord(tab, button, fill) {
@@ -42,6 +42,14 @@ async function addRecord(tab, button, fill) {
 }
 
 let farmUrl;
+await step('0. landing page renders and leads to sign-in', async () => {
+  await page.goto(`${BASE}/`);
+  await page.getByRole('heading', { level: 1 }).waitFor();
+  await page.getByText('Preview · sample values').waitFor();
+  await shot('00-landing');
+  await page.getByRole('link', { name: 'Sign in to the portal' }).click();
+  await page.waitForURL(/\/login$/);
+});
 await step('1. backend health visible on login page', async () => {
   await page.goto(`${BASE}/login`);
   await page.getByText(/Backend connected · database ok/).waitFor();
@@ -55,7 +63,8 @@ await step('1b. wrong password rejected', async () => {
 });
 await step('2. farmer signs in and sees own dashboard', async () => {
   await login('farmer.ravi@demo.triveni-kavach.example');
-  await page.getByRole('heading', { name: 'My farm dashboard' }).waitFor();
+  await page.getByText('My farm dashboard', { exact: true }).waitFor();
+  await page.getByRole('heading', { name: /Good (morning|afternoon|evening), Ravi/ }).waitFor();
   await page.getByText('fictional demonstration records').waitFor();
   await page.getByText('Recorded mortality per week').waitFor();
   await shot('02-farmer-dashboard');
@@ -174,13 +183,13 @@ await step('12. farmer cannot open another farmer\'s farm or admin pages', async
   await page.goto(`${BASE}/farms/3`); // seeded farm owned by another farmer
   await page.getByText('Farm not found.').waitFor();
   await page.goto(`${BASE}/users`);
-  await page.getByRole('heading', { name: 'My farm dashboard' }).waitFor();
+  await page.getByText('My farm dashboard', { exact: true }).waitFor();
   if (await page.getByRole('link', { name: 'Users' }).count()) throw new Error('Users link visible to farmer');
 });
 await step('9. admin dashboard uses backend data', async () => {
   await logout();
   await login('admin@demo.triveni-kavach.example');
-  await page.getByRole('heading', { name: 'Department dashboard' }).waitFor();
+  await page.getByText('Department dashboard', { exact: true }).waitFor();
   await page.getByText('Farms and active alerts by taluk').waitFor();
   await page.getByText('E2E Test Piggery').first().waitFor(); // follow-up list or activity feed
   await shot('07-admin-dashboard');
@@ -242,7 +251,7 @@ await step('admin users page and delete-confirmation', async () => {
 await step('veterinarian sees only assigned farms', async () => {
   await logout();
   await login('vet.kavya@demo.triveni-kavach.example');
-  await page.getByRole('heading', { name: 'Veterinarian dashboard' }).waitFor();
+  await page.getByText('Veterinarian dashboard', { exact: true }).waitFor();
   await page.getByRole('link', { name: 'Farms' }).click();
   await page.getByRole('link', { name: 'Demo Hilltop Layers' }).waitFor();
   if (await page.getByText('E2E Test Piggery').count()) throw new Error('vet sees unassigned farm');
@@ -257,7 +266,7 @@ await step('mobile layout renders', async () => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.getByRole('button', { name: 'Open menu' }).click();
   await page.getByRole('link', { name: 'Dashboard' }).click();
-  await page.getByRole('heading', { name: 'Veterinarian dashboard' }).waitFor();
+  await page.getByText('Veterinarian dashboard', { exact: true }).waitFor();
   await shot('10-mobile-dashboard');
 });
 

@@ -23,12 +23,15 @@ export default function DashboardPage() {
   const { data, error, loading, reload } = useAsync(() => Api.dashboard({ date_from: from, date_to: to }), [from, to]);
   if (!user) return null;
   const [title, scope] = TITLES[user.role];
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  const firstName = user.full_name.replace(/^(Dr\.?\s+)?(Demo\s+)?/i, '').split(/\s+/).slice(-1)[0];
 
   const filters = (
     <div className="flex flex-wrap items-end gap-2" role="group" aria-label="Date range">
       {PRESETS.map((d) => (
         <button key={d} onClick={() => { setFrom(daysAgo(d - 1)); setTo(isoDate(new Date())); }}
-          className={`rounded-md border px-2.5 py-1.5 text-xs font-medium ${from === daysAgo(d - 1) && to === isoDate(new Date()) ? 'border-brand-600 bg-brand-50 text-brand-800' : 'border-stone-300 bg-white text-stone-600 hover:bg-stone-50'}`}>
+          className={`rounded-lg border px-2.5 py-1.5 text-xs font-medium transition ${from === daysAgo(d - 1) && to === isoDate(new Date()) ? 'border-brand-600 bg-brand-50 text-brand-800' : 'border-stone-300 bg-white text-stone-600 hover:bg-stone-50'}`}>
           {d === 365 ? '1 year' : `${d} days`}
         </button>
       ))}
@@ -39,7 +42,7 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <PageHeader title={title} subtitle={`${scope} · figures computed from database records for the selected period`} actions={filters} />
+      <PageHeader eyebrow={title} title={`${greeting}, ${firstName}`} subtitle={`${scope} · figures computed from database records for the selected period`} actions={filters} />
       {loading && !data && <Spinner />}
       {error && <ErrorState error={error} onRetry={reload} />}
       {data && (
@@ -54,26 +57,30 @@ export default function DashboardPage() {
               <Link to="/notices" className="mt-2 inline-block text-xs underline">All notices</Link>
             </div>
           )}
-          {user.role === 'admin' && <Card title="Live weather across Haveri taluks"><TalukWeatherTable /></Card>}
           {data.farms.total === 0 ? (
+            <>
             <Card><EmptyState title="No farms yet" hint={user.role === 'veterinarian' ? 'No farms have been assigned to you. An administrator assigns farms.' : 'Register a farm to start recording biosecurity data.'}
               action={user.role !== 'veterinarian' ? <Link to="/farms" className="text-sm font-medium text-brand-700 underline">Go to farms</Link> : undefined} /></Card>
+            {user.role === 'admin' && <Card title="Live weather across Haveri taluks" className="mt-6"><TalukWeatherTable /></Card>}
+            </>
           ) : (
             <>
               <div className="grid grid-cols-2 gap-4 lg:grid-cols-6">
-                <StatCard label="Farms" value={fmtNum(data.farms.total)} icon={<Warehouse className="h-4 w-4" />}
+                <StatCard label="Farms" value={fmtNum(data.farms.total)} icon={<Warehouse className="h-4 w-4" />} accent="green"
                   hint={`${fmtNum(data.farms.population.pig)} pigs · ${fmtNum(data.farms.population.poultry)} poultry recorded`} />
-                <StatCard label="Active alerts" value={data.alerts.active} icon={<Bell className="h-4 w-4" />} tone={data.alerts.by_severity.high ? 'danger' : data.alerts.active ? 'warn' : 'default'}
+                <StatCard label="Active alerts" value={data.alerts.active} icon={<Bell className="h-4 w-4" />} accent="red" tone={data.alerts.by_severity.high ? 'danger' : data.alerts.active ? 'warn' : 'default'}
                   hint={`${data.alerts.by_severity.high} high · ${data.alerts.open} unacknowledged`} />
-                <StatCard label="Deaths recorded" value={fmtNum(data.mortality.total_in_period)} icon={<HeartPulse className="h-4 w-4" />}
+                <StatCard label="Deaths recorded" value={fmtNum(data.mortality.total_in_period)} icon={<HeartPulse className="h-4 w-4" />} accent="violet"
                   hint={`${data.mortality.reports_in_period} reports in period`} />
-                <StatCard label="Vaccinations given" value={data.vaccinations.completed_in_period} icon={<Syringe className="h-4 w-4" />}
+                <StatCard label="Vaccinations given" value={data.vaccinations.completed_in_period} icon={<Syringe className="h-4 w-4" />} accent="blue"
                   hint={`${data.vaccinations.missed_in_period} recorded as missed`} />
-                <StatCard label="Overdue vaccinations" value={data.vaccinations.overdue} icon={<CalendarClock className="h-4 w-4" />} tone={data.vaccinations.overdue ? 'danger' : 'default'}
+                <StatCard label="Overdue vaccinations" value={data.vaccinations.overdue} icon={<CalendarClock className="h-4 w-4" />} accent="amber" tone={data.vaccinations.overdue ? 'danger' : 'default'}
                   hint={`${data.vaccinations.due_next_30_days} due in next 30 days`} />
-                <StatCard label="Hygiene inspections" value={data.hygiene.inspections_in_period} icon={<ClipboardCheck className="h-4 w-4" />} tone={data.hygiene.failed ? 'warn' : 'default'}
+                <StatCard label="Hygiene inspections" value={data.hygiene.inspections_in_period} icon={<ClipboardCheck className="h-4 w-4" />} accent="teal" tone={data.hygiene.failed ? 'warn' : 'default'}
                   hint={`${data.hygiene.passed} passed · ${data.hygiene.failed} failed`} />
               </div>
+
+              {user.role === 'admin' && <Card title="Live weather across Haveri taluks"><TalukWeatherTable /></Card>}
 
               <div className="grid gap-6 lg:grid-cols-3">
                 <Card title="Farms requiring follow-up" className="lg:col-span-2"

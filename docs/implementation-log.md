@@ -117,3 +117,13 @@ Decisions:
 Deferred: automatic periodic refresh of statistics, notice import from an official feed
 (none with a stable public API was identified), weather for districts beyond Haveri,
 shared rate-limit store for multiple backend instances.
+
+## Update — frontend redesign and landing page (2026-10-25)
+
+| Area | Work | Status |
+|---|---|---|
+| Landing page | Hero, features, how it works, roles, data & trust, footer with data sources; mobile menu | Implemented, e2e + visual check |
+| Sign-in | Split-screen layout, backend status line, back to home | Implemented |
+| App shell | Dark grouped sidebar, user initials avatar, date, fade-in | Implemented |
+| Components | Restyled cards, badges (with status dots), stat cards (accent icons, alert bar), tables, modals, toasts | Implemented |
+| Routing | `/` landing (public), `/dashboard` dashboard | Implemented |

@@ -100,7 +100,8 @@ Copy-Item .env.example .env            # optional; default API URL is http://loc
 npm run dev
 ```
 
-Open <http://localhost:5173> and sign in. The login page shows whether the backend is reachable.
+Open <http://localhost:5173>: the public landing page explains the portal; **Sign in** leads to the
+login page (which shows whether the backend is reachable) and then to `/dashboard`.
 
 ### Linux / macOS
 Same steps with `python3.12 -m venv .venv`, `source .venv/bin/activate`, `cp` instead of

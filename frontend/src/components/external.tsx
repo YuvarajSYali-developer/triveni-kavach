@@ -78,6 +78,15 @@ export function TalukWeatherTable() {
   if (all.error) return <ErrorState error={all.error} onRetry={all.reload} />;
   const rows = all.data ?? [];
   const first = rows.find((r) => r.ok);
+  if (rows.length && !first) {
+    const reason = rows[0].ok ? '' : rows[0].e.message;
+    return (
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+        <span>Live weather is unavailable right now. {reason}</span>
+        <button onClick={all.reload} className="rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-xs font-medium hover:bg-amber-100">Retry</button>
+      </div>
+    );
+  }
   return (
     <div>
       <div className="overflow-x-auto">

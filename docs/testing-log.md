@@ -136,3 +136,20 @@ therefore written from the providers' documented API formats and tested with
 against a local stand-in server returning the documented payload shape (values in those
 screenshots were not real weather). **First use on the deployed site is the first contact
 with the live APIs**; the code reports any mismatch as an error rather than showing values.
+
+## Update: frontend redesign and landing page (2026-10-25)
+
+New public landing page at `/` (dashboard moved to `/dashboard`), split-screen sign-in page,
+dark grouped sidebar, refreshed components (cards, badges, stat cards, tables, modals),
+Inter + Plus Jakarta Sans typography. The landing page's product preview uses sample values
+and is labelled "Preview · sample values"; it shows no statistics presented as live.
+
+| Check | Result |
+|---|---|
+| Frontend typecheck / lint / Vitest / build | pass / pass / 10 passed / pass |
+| End-to-end journey (fresh database) | **23/23 passed** (new step 0: landing page → sign-in); 0 HTTP 500 |
+| Visual review (desktop 1440 px, mobile 390 px) | landing, sign-in, dashboard, farms reviewed from screenshots; fixed a floating card overlapping the preview, moved weather below the stat cards, collapsed a full weather outage into one message |
+
+A first e2e attempt reused the previous run's database and failed 4 steps on duplicate
+records ("resolved to 2 elements"); this was the test setup, not the app. Re-run on a fresh
+database: all passed.
