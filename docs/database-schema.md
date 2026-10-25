@@ -153,6 +153,8 @@ erDiagram
 | `alerts` | `dedup_key = "<farm_id>:<rule_code>"`; **partial unique index** on `dedup_key WHERE status != 'resolved'`; acknowledgement/resolution actor + timestamps; note required to resolve |
 | `animal_screenings` | inputs, model version (artifact hash), raw top/alternative scores, whether the top label was observed for the species in training, warnings |
 | `audit_logs` | actor, action, entity, farm, summary — no passwords or tokens |
+| `outbreak_notices` (migration 0002) | official notices: disease, species (pig/poultry/both), state/district/taluk, reported/closed dates, status; **`source_name` and `source_url` mandatory** |
+| `livestock_statistics` (migration 0002) | district population per species and reference year with source name/URL and `import_method` (manual / csv / data.gov.in); unique per state+district+species+year+source |
 
 All farm-scoped tables cascade on farm deletion (administrator-only, with a confirmation
 dialog in the UI). All timestamps are timezone-aware UTC; `created_at`/`updated_at` exist on

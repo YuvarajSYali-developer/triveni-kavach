@@ -94,6 +94,33 @@ export interface DashboardSummary {
   }[];
   environment: { readings_in_period: Partial<Record<Source, number>> };
   screenings_in_period: number;
+  official_notices: { id: number; disease: string; species: string; district: string; taluk: string | null; reported_on: string; source_name: string; source_url: string }[];
   recent_activity: { at: string; actor: string; action: string; summary: string; farm_id: number | null }[];
 }
 export interface VaccinationDue { id: number; farm_id: number; farm_name: string; vaccine_name: string; species: Species; due_on: string }
+
+export interface Attribution { text: string; url: string; licence: string; licence_url: string }
+export interface Weather {
+  district: string; taluk: string; latitude: number; longitude: number; source: string; attribution: Attribution;
+  observed_at: string | null; timezone: string | null; cached: boolean;
+  current: {
+    temperature_c: number | null; relative_humidity_pct: number | null; apparent_temperature_c: number | null;
+    precipitation_mm: number | null; wind_speed_kmh: number | null; weather_code: number | null;
+  };
+  forecast: { date: string; temperature_max_c: number | null; temperature_min_c: number | null; precipitation_mm: number | null }[];
+  advisories: string[];
+}
+export interface OutbreakNotice {
+  id: number; disease: string; species: 'pig' | 'poultry' | 'both'; state: string; district: string; taluk: string | null;
+  reported_on: string; status: 'active' | 'closed'; closed_on: string | null; source_name: string; source_url: string;
+  reference: string | null; notes: string | null; created_by_id: number | null; created_at: string; updated_at: string;
+}
+export interface LivestockStat {
+  id: number; state: string; district: string; species: Species; population: number; reference_year: number;
+  source_name: string; source_url: string; import_method: string; notes: string | null; created_at: string;
+}
+export interface ImportResult { created: number; updated: number; skipped: string[] }
+export interface DataGovPreview {
+  resource_id: string; title: string | null; total: number | null; source_url: string;
+  fields: { id: string; name: string; type: string }[]; sample_records: Record<string, unknown>[];
+}

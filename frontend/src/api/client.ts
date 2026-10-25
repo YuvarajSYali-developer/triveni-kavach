@@ -44,7 +44,7 @@ export function buildUrl(path: string, query?: Query): string {
 
 export async function api<T>(
   path: string,
-  opts: { method?: string; body?: unknown; query?: Query; signal?: AbortSignal } = {},
+  opts: { method?: string; body?: unknown; form?: FormData; query?: Query; signal?: AbortSignal } = {},
 ): Promise<T> {
   const headers: Record<string, string> = {};
   const token = tokenStore.get();
@@ -56,7 +56,7 @@ export async function api<T>(
     res = await fetch(buildUrl(path, opts.query), {
       method: opts.method ?? 'GET',
       headers,
-      body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
+      body: opts.form ?? (opts.body !== undefined ? JSON.stringify(opts.body) : undefined),
       signal: opts.signal,
     });
   } catch (e) {

@@ -43,6 +43,11 @@ def _migrate():
 
 @pytest.fixture(autouse=True)
 def _clean():
+    from app.core import ratelimit
+    from app.services import weather
+
+    ratelimit.clear_all()
+    weather.clear_cache()
     yield
     with engine.begin() as conn:
         for table in reversed(Base.metadata.sorted_tables):

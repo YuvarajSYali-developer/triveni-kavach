@@ -14,6 +14,8 @@ const ScreeningPage = lazy(() => import('./pages/ScreeningPage'));
 const IotConceptPage = lazy(() => import('./pages/IotConceptPage'));
 const UsersPage = lazy(() => import('./pages/UsersPage'));
 const AboutPage = lazy(() => import('./pages/AboutPage'));
+const NoticesPage = lazy(() => import('./pages/NoticesPage'));
+const StatisticsPage = lazy(() => import('./pages/StatisticsPage'));
 
 function RequireAuth({ children, roles }: { children: JSX.Element; roles?: Role[] }) {
   const { user, loading } = useAuth();
@@ -47,6 +49,8 @@ export default function App() {
               <Route path="farms/:farmId" element={<FarmDetailPage />} />
               <Route path="alerts" element={<AlertsPage />} />
               <Route path="screening" element={<ScreeningPage />} />
+              <Route path="notices" element={<NoticesPage />} />
+              <Route path="statistics" element={<StatisticsPage />} />
               <Route path="iot" element={<IotConceptPage />} />
               <Route path="users" element={<RequireAuth roles={['admin']}><UsersPage /></RequireAuth>} />
               <Route path="about" element={<AboutPage />} />

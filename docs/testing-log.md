@@ -93,3 +93,46 @@ Browser console errors during the run were only the expected 401 (wrong-password
 * **Load/performance testing**: dashboards aggregate in Python and are sized for district
   scale, not measured.
 * The Playwright script is a smoke test run manually; it is not wired into CI.
+
+---
+
+## Update: real data sources and deployment readiness (2026-10-25)
+
+Same environment as above. New code: Open-Meteo weather, official outbreak notices,
+livestock statistics (manual / CSV / data.gov.in), login rate limiting, production
+settings guard, `seed_demo.py --users-only`, Render/Vercel configuration.
+
+| Check | Result |
+|---|---|
+| `ruff check` / `ruff format --check` | pass (49 files) |
+| `pytest` on SQLite | **80 passed** (67 previous + 13 in `test_external.py`) |
+| `pytest` on PostgreSQL 16 | **80 passed** |
+| Migrations `0001 → 0002`, `alembic check`, downgrade to base | pass |
+| Frontend typecheck / lint / Vitest / build | pass / pass / **10 passed** / pass |
+| End-to-end journey (`e2e/journey.mjs`) | **22/22 steps passed** (19 previous + notice/advisory, weather card, statistics); 0 HTTP 500 |
+| Production rehearsal (PostgreSQL, `APP_ENV=production`, Render start command, `postgresql://` URL) | pass — see below |
+
+**Production rehearsal results**: the seed script refused full demo data and refused
+`--users-only` without `DEMO_PASSWORD`; with the password it created accounts only; the
+farm list was empty; the simulator returned 403; CORS allowed only the configured https
+origin; `postgresql://` was normalised to the psycopg driver; behind `--proxy-headers`
+the 9th failed login from one forwarded address returned 429 while another address could
+still sign in.
+
+`test_external.py` covers: weather parsing (missing values stay `null`, malformed payload →
+error), heat advisory, request parameters, caching, upstream failure → 503 (no placeholder
+values), unsupported taluk → 404, farm-scoped access; notice validation (mandatory https
+source link, dates, closure), permissions (farmer 403, other vet 403, admin-only delete),
+district + species advisory matching, dashboard notices per role; statistics upsert,
+permissions, validation, CSV import with skipped rows reported; data.gov.in key required,
+preview, column mapping, pagination parameters, `"NA"` values skipped not estimated, HTTP
+errors → 502, invalid resource ID → 422; login rate limiting and reset; production guard.
+
+### Not verified against the live services
+This sandbox's network policy blocked `api.open-meteo.com`, `api.data.gov.in`,
+`open-meteo.com` and `data.gov.in` (documentation pages included). Both connectors were
+therefore written from the providers' documented API formats and tested with
+`httpx.MockTransport` responses in those formats. The weather UI was checked visually
+against a local stand-in server returning the documented payload shape (values in those
+screenshots were not real weather). **First use on the deployed site is the first contact
+with the live APIs**; the code reports any mismatch as an error rather than showing values.

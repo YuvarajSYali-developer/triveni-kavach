@@ -90,3 +90,30 @@ hackathon work and is reference material only.
 
 ## Out of scope
 Physical IoT hardware, MQTT broker deployment, device drivers, paid cloud services.
+
+## Update — real data sources and online deployment (2026-10-25)
+
+Requested: real online data instead of fictional records, and a publicly reachable site
+(chosen hosting: Vercel + Render + Neon; fictional accounts acceptable, data must be real).
+
+| Area | Work | Status |
+|---|---|---|
+| Repository | Project moved to its own repository `YuvarajSYali-developer/triveni-kavach`; missing `frontend/index.html` (excluded by the old repository's `.gitignore`) restored | Done |
+| Weather | Open-Meteo client, taluk lookup points, cache, heat advisory, attribution; farm card and department table | Implemented, Tested (mocked); live API untested from sandbox |
+| Outbreak notices | Model, migration 0002, CRUD with mandatory source link, farm advisories, dashboard banner, page | Implemented, Tested |
+| Livestock statistics | Model, manual entry, CSV import, data.gov.in preview + mapped import, charts (small multiples) | Implemented, Tested (mocked data.gov.in) |
+| Security for public use | Login rate limiting; production guard (PostgreSQL, SECRET_KEY, https CORS); simulator off in production | Implemented, Tested |
+| Accounts | `seed_demo.py --users-only` (only mode allowed in production, password required) | Implemented, run in rehearsal |
+| Deployment | `render.yaml`, `frontend/vercel.json`, `docs/deployment.md` | Written; production rehearsal run locally; **not yet deployed** (needs the owner's Neon/Render/Vercel accounts) |
+
+Decisions:
+* Weather is regional context only: stored nowhere, never mixed with on-farm observations,
+  not part of the risk score.
+* No data.gov.in dataset ID or column name is hard-coded; the admin previews the real
+  dataset and maps columns. No figures were pre-loaded because none could be retrieved and
+  verified from the sandbox.
+* Notices are human-entered from official publications; the system does not detect outbreaks.
+
+Deferred: automatic periodic refresh of statistics, notice import from an official feed
+(none with a stable public API was identified), weather for districts beyond Haveri,
+shared rate-limit store for multiple backend instances.

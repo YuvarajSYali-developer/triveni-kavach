@@ -302,6 +302,63 @@ class AuditLog(Base):
     actor: Mapped[User | None] = relationship(lazy="joined")
 
 
+class OutbreakStatus(str, enum.Enum):
+    ACTIVE = "active"
+    CLOSED = "closed"
+
+
+class NoticeSpecies(str, enum.Enum):
+    PIG = "pig"
+    POULTRY = "poultry"
+    BOTH = "both"
+
+
+class OutbreakNotice(TimestampMixin, Base):
+    """An officially reported disease outbreak, entered from an official source.
+
+    The source name and URL are mandatory so every notice can be traced to the
+    publishing authority. Nothing is generated or inferred by the system."""
+
+    __tablename__ = "outbreak_notices"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    disease: Mapped[str] = mapped_column(String(160))
+    species: Mapped[NoticeSpecies] = mapped_column(_enum(NoticeSpecies, "notice_species"))
+    state: Mapped[str] = mapped_column(String(80), default="Karnataka")
+    district: Mapped[str] = mapped_column(String(80), index=True)
+    taluk: Mapped[str | None] = mapped_column(String(80))
+    reported_on: Mapped[date] = mapped_column(Date, index=True)
+    status: Mapped[OutbreakStatus] = mapped_column(_enum(OutbreakStatus, "outbreak_status"), index=True)
+    closed_on: Mapped[date | None] = mapped_column(Date)
+    source_name: Mapped[str] = mapped_column(String(200))
+    source_url: Mapped[str] = mapped_column(String(500))
+    reference: Mapped[str | None] = mapped_column(String(120))
+    notes: Mapped[str | None] = mapped_column(Text)
+    created_by_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+
+
+class LivestockStatistic(TimestampMixin, Base):
+    """Official population statistics (e.g. Livestock Census) with provenance."""
+
+    __tablename__ = "livestock_statistics"
+    __table_args__ = (
+        CheckConstraint("population >= 0", name="population_nonneg"),
+        Index("uq_livestock_stat_key", "state", "district", "species", "reference_year", "source_name", unique=True),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    state: Mapped[str] = mapped_column(String(80))
+    district: Mapped[str] = mapped_column(String(80), index=True)
+    species: Mapped[Species] = mapped_column(_enum(Species, "species"))
+    population: Mapped[int] = mapped_column(Integer)
+    reference_year: Mapped[int] = mapped_column(Integer)
+    source_name: Mapped[str] = mapped_column(String(200))
+    source_url: Mapped[str] = mapped_column(String(500))
+    import_method: Mapped[str] = mapped_column(String(20), default="manual")  # manual | csv | data.gov.in
+    notes: Mapped[str | None] = mapped_column(Text)
+    created_by_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+
+
 RECORD_MODELS = {
     "vaccinations": VaccinationRecord,
     "mortality": MortalityRecord,

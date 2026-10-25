@@ -1,5 +1,6 @@
 import { api } from './client';
 import type {
+  DataGovPreview, ImportResult, LivestockStat, OutbreakNotice, Weather,
   Alert, Assessment, AssessmentRun, DashboardSummary, EnvReading, Farm, Hygiene, ModelStatus, Mortality, Page,
   Screening, User, Vaccination, Visitor,
 } from './types';
@@ -49,5 +50,29 @@ export const Api = {
 
   modelStatus: () => api<ModelStatus>('/screening/status'),
   screen: (body: unknown) => api<Screening>('/screening', { method: 'POST', body }),
+  farmWeather: (farmId: number) => api<Weather>(`/farms/${farmId}/weather`),
+  weather: (district: string, taluk: string) => api<Weather>('/weather', { query: { district, taluk } }),
+  weatherLocations: () => api<{ locations: { district: string; taluk: string; latitude: number; longitude: number }[] }>('/weather/locations'),
+
+  outbreaks: (query: { status?: string; district?: string; species?: string; limit?: number; offset?: number } = {}) =>
+    api<Page<OutbreakNotice>>('/outbreaks', { query }),
+  createOutbreak: (body: unknown) => api<OutbreakNotice>('/outbreaks', { method: 'POST', body }),
+  updateOutbreak: (id: number, body: unknown) => api<OutbreakNotice>(`/outbreaks/${id}`, { method: 'PUT', body }),
+  deleteOutbreak: (id: number) => api<void>(`/outbreaks/${id}`, { method: 'DELETE' }),
+  farmAdvisories: (farmId: number) => api<OutbreakNotice[]>(`/farms/${farmId}/advisories`),
+
+  livestockStats: (query: { state?: string; district?: string; species?: string; reference_year?: number } = {}) =>
+    api<Page<LivestockStat>>('/statistics/livestock', { query: { limit: 2000, ...query } }),
+  createLivestockStat: (body: unknown) => api<LivestockStat>('/statistics/livestock', { method: 'POST', body }),
+  deleteLivestockStat: (id: number) => api<void>(`/statistics/livestock/${id}`, { method: 'DELETE' }),
+  importLivestockCsv: (file: File) => {
+    const form = new FormData();
+    form.append('file', file);
+    return api<ImportResult>('/statistics/livestock/import-csv', { method: 'POST', form });
+  },
+  dataGovStatus: () => api<{ configured: boolean }>('/statistics/livestock/datagov/status'),
+  dataGovPreview: (resource_id: string) => api<DataGovPreview>('/statistics/livestock/datagov/preview', { query: { resource_id } }),
+  dataGovImport: (body: unknown) => api<ImportResult>('/statistics/livestock/datagov/import', { method: 'POST', body }),
+
   screenings: (query: { farm_id?: number; limit?: number; offset?: number } = {}) => api<Page<Screening>>('/screening', { query }),
 };

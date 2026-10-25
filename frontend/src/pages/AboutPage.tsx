@@ -6,7 +6,9 @@ const ITEMS: [string, string[]][] = [
     'It has not been deployed or endorsed by the Department. It is a working software prototype for evaluation.',
   ]],
   ['Data', [
-    'Records shown come from this application’s database. Records created by the development seed script are fictional and marked as demo data.',
+    'Farm records (vaccinations, mortality, hygiene, visitors, readings) come only from what users enter. The public site contains no invented farm records; its demo accounts are fictional people. A local development database can be filled with clearly labelled fictional demo records.',
+    'Live weather comes from Open-Meteo (CC BY 4.0) for taluk headquarters towns. It describes the surrounding area, not conditions inside a shed, and is not used in risk scores.',
+    'Disease notices and livestock statistics are entered or imported from official publications (for example state department orders, or the Livestock Census on data.gov.in); every item links to its source.',
     'Farm locations are stored at taluk/village level only; no precise coordinates are collected, so no farm map is shown.',
   ]],
   ['Biosecurity assessment', [

@@ -51,6 +51,10 @@ flowchart LR
 | `services/screening/model_service.py` | Loads/validates artifacts, predicts, annotates outputs |
 | `services/telemetry.py` | Synthetic reading generator (`source=simulated`) |
 | `services/audit.py` | Append-only audit log feeding "recent activity" |
+| `services/weather.py` | Open-Meteo client: taluk lookup points, validation, 30-min cache, heat advisory; failures raise, never fabricate |
+| `services/datagov.py` | data.gov.in client: preview fields/samples, paginated import with admin-chosen column mapping; non-numeric values skipped and reported |
+| `api/v1/external.py` | Weather, official outbreak notices (+ farm advisories), livestock statistics (manual, CSV, data.gov.in) |
+| `core/ratelimit.py` | In-memory failed-login limiter |
 
 ## Authorisation model
 
@@ -108,6 +112,10 @@ POST|GET /farms/{id}/assessments          GET /assessments/{id}    POST /assessm
 GET /alerts   POST /alerts/{id}/acknowledge   POST /alerts/{id}/resolve
 GET /dashboard/summary?date_from&date_to
 GET /screening/status   POST|GET /screening   GET /screening/{id}
+GET /weather?district&taluk   GET /weather/locations   GET /farms/{id}/weather
+GET|POST /outbreaks   PUT|DELETE /outbreaks/{id}   GET /farms/{id}/advisories
+GET|POST /statistics/livestock   DELETE /statistics/livestock/{id}   POST /statistics/livestock/import-csv
+GET /statistics/livestock/datagov/{status|preview}   POST /statistics/livestock/datagov/import
 GET /health
 ```
 

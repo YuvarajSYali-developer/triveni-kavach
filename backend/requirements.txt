@@ -5,6 +5,8 @@ pydantic==2.10.4
 pydantic-settings==2.7.1
 email-validator==2.2.0
 python-multipart==0.0.20
+# Outbound HTTP for Open-Meteo and data.gov.in
+httpx==0.28.1
 
 # Database
 SQLAlchemy==2.0.36

@@ -7,8 +7,12 @@
   digits) or a random password is generated and printed once.
 
 Usage (from the backend directory, after ``alembic upgrade head``):
-    python scripts/seed_demo.py            # refuses if demo data already exists
-    python scripts/seed_demo.py --reset    # deletes existing demo data first
+    python scripts/seed_demo.py               # demo accounts + fictional farm records (local development)
+    python scripts/seed_demo.py --reset       # deletes existing demo data first
+    python scripts/seed_demo.py --users-only  # demo accounts only, no fictional records (public deployment)
+
+``--users-only`` is the only mode allowed when APP_ENV=production, and there DEMO_PASSWORD
+must be set (a generated password would only appear in a hosting log).
 """
 
 from __future__ import annotations
@@ -85,10 +89,7 @@ def reset(db) -> None:
     db.commit()
 
 
-def seed(db, password: str) -> None:
-    rng = random.Random(25006)
-    today = date.today()
-    now = datetime.now(timezone.utc)
+def seed_users(db, password: str) -> list[User]:
     hashed = hash_password(password)
     users = []
     for email, name, role in USERS:
@@ -96,6 +97,14 @@ def seed(db, password: str) -> None:
         db.add(u)
         users.append(u)
     db.flush()
+    return users
+
+
+def seed(db, password: str) -> None:
+    rng = random.Random(25006)
+    today = date.today()
+    now = datetime.now(timezone.utc)
+    users = seed_users(db, password)
 
     for name, ftype, taluk, pigs, birds, owner_i, vet_i, profile in FARMS:
         farm = Farm(
@@ -247,9 +256,13 @@ def seed(db, password: str) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--reset", action="store_true", help="delete existing demo data first")
+    parser.add_argument("--users-only", action="store_true", help="create demo accounts without fictional records")
     args = parser.parse_args()
     if get_settings().APP_ENV == "production":
-        raise SystemExit("Refusing to seed demo data when APP_ENV=production.")
+        if not args.users_only:
+            raise SystemExit("In production only --users-only is allowed (no fictional records).")
+        if not os.environ.get("DEMO_PASSWORD"):
+            raise SystemExit("Set DEMO_PASSWORD when seeding a production database.")
     db = SessionLocal()
     try:
         if db.scalar(select(User).where(User.is_demo.is_(True))):
@@ -257,8 +270,13 @@ def main() -> None:
                 raise SystemExit("Demo data already exists. Re-run with --reset to recreate it.")
             reset(db)
         password, generated = _password()
-        seed(db, password)
-        print("Seeded fictional demo data. Development accounts:")
+        if args.users_only:
+            seed_users(db, password)
+            db.commit()
+            print("Created fictional demo accounts (no farm records). Accounts:")
+        else:
+            seed(db, password)
+            print("Seeded fictional demo data. Development accounts:")
         for email, _, role in USERS:
             print(f"  {role.value:<13} {email}")
         if generated:

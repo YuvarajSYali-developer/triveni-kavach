@@ -195,6 +195,42 @@ await step('7c. admin resolves an alert with a note', async () => {
   await page.getByLabel('Status').selectOption('resolved');
   await page.getByText('Resolution: Checked on site during e2e test').waitFor();
 });
+await step('admin records an official notice; farm page shows it as an advisory', async () => {
+  await page.getByRole('link', { name: 'Disease notices' }).click();
+  await page.getByRole('button', { name: 'Add notice' }).click();
+  const d = page.getByRole('dialog');
+  await d.getByLabel('Disease (as named in the notice)').fill('E2E test disease');
+  await d.getByLabel('Link to the official notice').fill('not-a-link');
+  await d.getByLabel('Source (publishing authority)').fill('E2E test authority');
+  await d.getByRole('button', { name: 'Save notice' }).click();
+  await d.getByText(/Enter the full link/).waitFor(); // source link is mandatory and validated
+  await d.getByLabel('Link to the official notice').fill('https://example.gov.in/e2e-notice');
+  await d.getByRole('button', { name: 'Save notice' }).click();
+  await d.waitFor({ state: 'detached' });
+  await page.getByRole('cell', { name: 'E2E test disease' }).waitFor();
+  await page.goto(farmUrl); // pig farm in Haveri district
+  await page.getByText(/Official disease notice/).waitFor();
+  await page.getByRole('link', { name: /E2E test authority/ }).waitFor();
+  await shot('11-advisory');
+});
+await step('farm weather card shows live data or an honest error', async () => {
+  await page.getByText('Local weather (live)').waitFor();
+  await page.getByText(/Weather data by Open-Meteo|could not be reached|Live weather is disabled/).first().waitFor({ timeout: 15000 });
+});
+await step('admin enters an official statistic with source', async () => {
+  await page.getByRole('link', { name: 'Livestock statistics' }).click();
+  await page.getByRole('button', { name: 'Add figure' }).click();
+  const d = page.getByRole('dialog');
+  await d.getByLabel('District').fill('E2E District');
+  await d.getByLabel('Population').fill('4321');
+  await d.getByLabel('Source publication').fill('E2E test census table');
+  await d.getByLabel('Link to the source').fill('https://example.gov.in/census');
+  await d.getByRole('button', { name: 'Save' }).click();
+  await d.waitFor({ state: 'detached' });
+  await page.getByRole('cell', { name: '4,321' }).waitFor();
+  await page.getByRole('link', { name: /E2E test census table/ }).waitFor();
+  await shot('12-statistics');
+});
 await step('admin users page and delete-confirmation', async () => {
   await page.getByRole('link', { name: 'Users' }).click();
   await page.getByRole('cell', { name: /Demo Farmer Ravi/ }).waitFor();

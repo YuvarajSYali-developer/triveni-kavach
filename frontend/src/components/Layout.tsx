@@ -1,4 +1,4 @@
-import { Activity, Bell, Cpu, Home, Info, LogOut, Menu, ShieldCheck, Stethoscope, Users, Warehouse, X } from 'lucide-react';
+import { Activity, BarChart3, Bell, Cpu, Home, Info, LogOut, Megaphone, Menu, ShieldCheck, Stethoscope, Users, Warehouse, X } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
@@ -9,6 +9,8 @@ const NAV: { to: string; label: string; icon: ReactNode; roles?: Role[] }[] = [
   { to: '/', label: 'Dashboard', icon: <Home className="h-4 w-4" /> },
   { to: '/farms', label: 'Farms', icon: <Warehouse className="h-4 w-4" /> },
   { to: '/alerts', label: 'Alerts', icon: <Bell className="h-4 w-4" /> },
+  { to: '/notices', label: 'Disease notices', icon: <Megaphone className="h-4 w-4" /> },
+  { to: '/statistics', label: 'Livestock statistics', icon: <BarChart3 className="h-4 w-4" /> },
   { to: '/screening', label: 'Health screening', icon: <Stethoscope className="h-4 w-4" /> },
   { to: '/iot', label: 'IoT concept', icon: <Cpu className="h-4 w-4" /> },
   { to: '/users', label: 'Users', icon: <Users className="h-4 w-4" />, roles: ['admin'] },
@@ -57,7 +59,7 @@ export default function Layout() {
         {nav}
         <div className="mt-auto rounded-md bg-stone-50 p-3 text-xs text-stone-500">
           <Activity className="mb-1 h-4 w-4 text-brand-600" aria-hidden />
-          Internship prototype. Records shown are from this system&rsquo;s database; demo records are fictional.
+          Internship prototype. Weather is live from Open-Meteo; notices and statistics link to their official sources.
         </div>
       </aside>
 

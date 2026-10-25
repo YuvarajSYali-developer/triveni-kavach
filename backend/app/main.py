@@ -14,7 +14,7 @@ from app.services.screening.model_service import get_screening_model
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    get_settings().resolved_secret_key()  # fail fast in production without a key
+    get_settings().check_production()  # fail fast on unsafe production settings
     get_screening_model().load()  # failure leaves an honest 'unavailable' state
     yield
 

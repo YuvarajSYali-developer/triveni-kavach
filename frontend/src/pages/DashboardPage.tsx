@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { Api } from '../api/endpoints';
 import { useAuth } from '../auth/AuthContext';
 import { SERIES, SimpleBars, SpeciesBars } from '../components/charts';
+import { NoticeLine, TalukWeatherTable } from '../components/external';
 import { Card, EmptyState, ErrorState, Notice, PageHeader, Spinner, StatCard, StatusBadge } from '../components/ui';
 import { daysAgo, fmtDate, fmtDateTime, fmtNum, humanize, isoDate } from '../lib/format';
 import { useAsync } from '../lib/useAsync';
@@ -46,6 +47,14 @@ export default function DashboardPage() {
           {data.contains_demo_data && (
             <Notice>Includes <strong>fictional demonstration records</strong> created by the development seed script. They are not real farms or observations.</Notice>
           )}
+          {data.official_notices.length > 0 && (
+            <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-900">
+              <p className="mb-2 font-semibold">Active official disease notices{user.role === 'admin' ? '' : ' in your districts'}</p>
+              <ul className="space-y-1.5">{data.official_notices.map((n) => <NoticeLine key={n.id} n={n} />)}</ul>
+              <Link to="/notices" className="mt-2 inline-block text-xs underline">All notices</Link>
+            </div>
+          )}
+          {user.role === 'admin' && <Card title="Live weather across Haveri taluks"><TalukWeatherTable /></Card>}
           {data.farms.total === 0 ? (
             <Card><EmptyState title="No farms yet" hint={user.role === 'veterinarian' ? 'No farms have been assigned to you. An administrator assigns farms.' : 'Register a farm to start recording biosecurity data.'}
               action={user.role !== 'veterinarian' ? <Link to="/farms" className="text-sm font-medium text-brand-700 underline">Go to farms</Link> : undefined} /></Card>

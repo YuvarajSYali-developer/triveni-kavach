@@ -5,6 +5,7 @@ import { Api, type RecordKind, type RecordMap } from '../api/endpoints';
 import type { Assessment, Farm, User } from '../api/types';
 import { useAuth } from '../auth/AuthContext';
 import { EnvLines } from '../components/charts';
+import { AdvisoryBanner, WeatherCard } from '../components/external';
 import FarmForm from '../components/FarmForm';
 import { RECORD_FORMS } from '../components/recordForms.registry';
 import { Badge, Button, Card, ConfirmDialog, EmptyState, ErrorState, Modal, Notice, PageHeader, Pager, Spinner, StatusBadge, SuccessToast, Table } from '../components/ui';
@@ -68,6 +69,7 @@ export default function FarmDetailPage() {
         </>}
       />
       {actionError && <div className="mb-4"><ErrorState error={new Error(actionError)} /></div>}
+      <AdvisoryBanner farmId={f.id} />
 
       <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-5">
         <Info label="Pigs" value={fmtNum(f.pig_count)} />
@@ -122,6 +124,7 @@ function Overview({ farm, onChanged }: { farm: Farm; onChanged: () => void }) {
       </div>
       <div className="lg:col-span-2">
         <Card title="Active alerts"><AlertList farmId={farm.id} compact onChanged={onChanged} /></Card>
+        <div className="mt-6"><WeatherCard farmId={farm.id} /></div>
       </div>
     </div>
   );

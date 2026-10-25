@@ -12,7 +12,9 @@ from app.models import (
     AlertStatus,
     FarmType,
     InspectionResult,
+    NoticeSpecies,
     ObservationSource,
+    OutbreakStatus,
     RiskStatus,
     Role,
     Species,
@@ -428,3 +430,117 @@ class ScreeningOut(BaseModel):
     score_note: str
     recommendation: str
     limitations: list[str]
+
+
+# ------------------------------------------------- official external data
+URL_PATTERN = r"^https?://[^\s/$.?#].[^\s]*$"
+
+
+def _not_future(v: date | None) -> date | None:
+    if v is not None and v > _today():
+        raise ValueError("The date cannot be in the future.")
+    return v
+
+
+class OutbreakIn(BaseModel):
+    disease: str = Field(min_length=2, max_length=160)
+    species: NoticeSpecies
+    state: str = Field(default="Karnataka", min_length=2, max_length=80)
+    district: str = Field(min_length=2, max_length=80)
+    taluk: str | None = Field(default=None, max_length=80)
+    reported_on: date
+    status: OutbreakStatus = OutbreakStatus.ACTIVE
+    closed_on: date | None = None
+    source_name: str = Field(min_length=3, max_length=200, description="Publishing authority, e.g. a government department")
+    source_url: str = Field(max_length=500, pattern=URL_PATTERN, description="Link to the official notice")
+    reference: str | None = Field(default=None, max_length=120)
+    notes: str | None = Field(default=None, max_length=2000)
+
+    _s = field_validator("disease", "state", "district", "taluk", "source_name", mode="before")(_strip)
+    _nf = field_validator("reported_on", "closed_on")(_not_future)
+
+    @model_validator(mode="after")
+    def _closure(self):
+        if self.status == OutbreakStatus.CLOSED and self.closed_on is None:
+            raise ValueError("A closed notice needs the closing date.")
+        if self.closed_on and self.closed_on < self.reported_on:
+            raise ValueError("The closing date cannot be before the reported date.")
+        if self.status == OutbreakStatus.ACTIVE and self.closed_on is not None:
+            raise ValueError("An active notice cannot have a closing date.")
+        return self
+
+
+class OutbreakOut(ORM):
+    id: int
+    disease: str
+    species: NoticeSpecies
+    state: str
+    district: str
+    taluk: str | None
+    reported_on: date
+    status: OutbreakStatus
+    closed_on: date | None
+    source_name: str
+    source_url: str
+    reference: str | None
+    notes: str | None
+    created_by_id: int | None
+    created_at: datetime
+    updated_at: datetime
+
+
+class LivestockStatIn(BaseModel):
+    state: str = Field(min_length=2, max_length=80)
+    district: str = Field(min_length=2, max_length=80)
+    species: Species
+    population: int = Field(ge=0, le=1_000_000_000)
+    reference_year: int = Field(ge=1950, le=2100)
+    source_name: str = Field(min_length=3, max_length=200)
+    source_url: str = Field(max_length=500, pattern=URL_PATTERN)
+    notes: str | None = Field(default=None, max_length=2000)
+
+    _s = field_validator("state", "district", "source_name", mode="before")(_strip)
+
+    @field_validator("reference_year")
+    @classmethod
+    def _year(cls, v: int) -> int:
+        if v > _today().year:
+            raise ValueError("The reference year cannot be in the future.")
+        return v
+
+
+class LivestockStatOut(ORM):
+    id: int
+    state: str
+    district: str
+    species: Species
+    population: int
+    reference_year: int
+    source_name: str
+    source_url: str
+    import_method: str
+    notes: str | None
+    created_at: datetime
+
+
+class DataGovImport(BaseModel):
+    resource_id: str = Field(min_length=8, max_length=64, pattern=r"^[A-Za-z0-9-]+$")
+    state_field: str = Field(min_length=1, max_length=100)
+    district_field: str = Field(min_length=1, max_length=100)
+    pig_field: str | None = Field(default=None, max_length=100)
+    poultry_field: str | None = Field(default=None, max_length=100)
+    state_filter: str | None = Field(default=None, max_length=80)
+    reference_year: int = Field(ge=1950, le=2100)
+    source_name: str = Field(min_length=3, max_length=200)
+
+    @model_validator(mode="after")
+    def _one_species(self):
+        if not self.pig_field and not self.poultry_field:
+            raise ValueError("Choose at least one of the pig or poultry fields.")
+        return self
+
+
+class ImportResult(BaseModel):
+    created: int
+    updated: int
+    skipped: list[str]

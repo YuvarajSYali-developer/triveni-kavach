@@ -45,6 +45,30 @@ class Settings(BaseSettings):
 
     LOG_LEVEL: str = "INFO"
 
+    # Live weather from Open-Meteo (free, no key; attribution required: CC BY 4.0).
+    WEATHER_ENABLED: bool = True
+    WEATHER_API_URL: str = "https://api.open-meteo.com/v1/forecast"
+    WEATHER_CACHE_MINUTES: int = 30
+    WEATHER_TIMEOUT_SECONDS: float = 8.0
+
+    # Open Government Data Platform India (data.gov.in). Each user registers for their own key.
+    DATA_GOV_IN_API_KEY: str = ""
+    DATA_GOV_IN_API_URL: str = "https://api.data.gov.in/resource"
+
+    # Failed sign-in attempts allowed per e-mail + client address in the window below.
+    LOGIN_MAX_FAILURES: int = 8
+    LOGIN_WINDOW_MINUTES: int = 15
+
+    @field_validator("DATABASE_URL")
+    @classmethod
+    def _db_url(cls, v: str) -> str:
+        # Hosted Postgres providers (Neon, Render) hand out postgres:// or postgresql:// URLs;
+        # SQLAlchemy needs the driver named explicitly.
+        for prefix in ("postgres://", "postgresql://"):
+            if v.startswith(prefix):
+                return "postgresql+psycopg://" + v[len(prefix) :]
+        return v
+
     @field_validator("APP_ENV")
     @classmethod
     def _env(cls, v: str) -> str:
@@ -60,6 +84,16 @@ class Settings(BaseSettings):
     @property
     def screening_species(self) -> list[str]:
         return [s.strip() for s in self.SCREENING_ENABLED_SPECIES.split(",") if s.strip()]
+
+    def check_production(self) -> None:
+        """Refuse unsafe configurations when APP_ENV=production."""
+        if self.APP_ENV != "production":
+            return
+        self.resolved_secret_key()
+        if self.DATABASE_URL.startswith("sqlite"):
+            raise RuntimeError("Use PostgreSQL (DATABASE_URL) in production; SQLite files are lost on hosted platforms.")
+        if any("localhost" in o or "127.0.0.1" in o for o in self.cors_origins):
+            raise RuntimeError("CORS_ORIGINS must list the public frontend URL in production, not localhost.")
 
     def resolved_secret_key(self) -> str:
         if self.SECRET_KEY:

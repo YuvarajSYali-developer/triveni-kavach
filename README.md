@@ -24,7 +24,7 @@ module built on a reused machine-learning model.
 
 Documentation: [architecture](docs/architecture.md) · [database schema](docs/database-schema.md) ·
 [source audit](docs/source-audit.md) · [model limitations](docs/model-limitations.md) ·
-[IoT concept](docs/iot-concept.md) · [testing log](docs/testing-log.md) ·
+[IoT concept](docs/iot-concept.md) · [**deployment guide**](docs/deployment.md) · [testing log](docs/testing-log.md) ·
 [implementation log](docs/implementation-log.md)
 
 ---
@@ -119,7 +119,7 @@ already in `requirements.txt`.
 
 ```powershell
 # Backend (from backend/, venv active)
-pytest                                  # 67 tests; builds a temporary DB via the real migrations
+pytest                                  # 80 tests; builds a temporary DB via the real migrations
 ruff check .
 ruff format --check .
 alembic check                           # models and migrations agree
@@ -158,6 +158,24 @@ Results of the runs performed for this version are in [docs/testing-log.md](docs
   alternatives, species-coverage warnings and a stored history.
 * **IoT concept**: simulator + validated ingestion API; no hardware.
 
+### Real data sources
+
+| Data | Source | How it gets in |
+|---|---|---|
+| Live weather and 3-day forecast per Haveri taluk | [Open-Meteo](https://open-meteo.com) (CC BY 4.0, no key) | Fetched live by the backend, cached 30 min; shown on farm pages and the department dashboard with attribution. Regional conditions, not shed measurements; not used in risk scores. |
+| Official disease outbreak notices | Government publications (state department orders, national reports) | Entered by administrators/veterinarians; a source name and link are mandatory. Shown as district advisories on matching farms and dashboards. |
+| District pig and poultry populations | Livestock Census tables, e.g. on [data.gov.in](https://data.gov.in) | Imported via the data.gov.in API (free key; preview then map columns), CSV upload, or manual entry, always with source and reference year. |
+| Farm records | Farmers, veterinarians, administrators | Entered in the app. The public deployment contains **no fictional farm records**. |
+
+## Deploying online
+
+The site is designed for **Neon** (database) + **Render** (API, `render.yaml`) + **Vercel**
+(website, `frontend/vercel.json`), all on free tiers. Follow
+[docs/deployment.md](docs/deployment.md). In production the backend refuses to start with
+SQLite, a missing `SECRET_KEY` or a localhost CORS origin; the telemetry simulator is off;
+and only fictional *accounts* (`seed_demo.py --users-only`) may be created, never fictional
+records.
+
 ## Known limitations
 
 * The screening model was trained on **synthetic data only**; its outputs are uncalibrated
@@ -167,8 +185,12 @@ Results of the runs performed for this version are in [docs/testing-log.md](docs
 * No physical IoT integration; `device` source is disabled.
 * No maps (farms store administrative locations only), no SMS/e-mail notifications, no
   Kannada interface, no offline mode, no report export.
-* Access tokens are kept in `sessionStorage`; there is no refresh token, login rate limiting
-  or account lockout. These are required before any real deployment.
+* Access tokens are kept in `sessionStorage`; there is no refresh token. Failed sign-ins are
+  rate-limited per address and e-mail (in memory, single instance).
+* Live weather covers the eight Haveri taluks only (lookup points are taluk headquarters towns).
+* The data.gov.in and Open-Meteo connectors were built from the providers' documented
+  formats and tested with simulated responses; they could not be called from the
+  development sandbox (see the testing log).
 * Windows setup commands are documented but were not executed on Windows in this
   environment (development and testing ran on Linux; see the testing log).
 

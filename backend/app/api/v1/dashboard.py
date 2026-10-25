@@ -8,6 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
+from app.api.v1.external import active_notices_for_user
 from app.core.deps import accessible_farm_ids, get_current_user
 from app.db.session import get_db
 from app.models import (
@@ -275,5 +276,18 @@ def summary(
         "follow_up_farms": follow_up[:15],
         "environment": {"readings_in_period": {s.value: c for s, c in env_rows}},
         "screenings_in_period": screenings,
+        "official_notices": [
+            {
+                "id": n.id,
+                "disease": n.disease,
+                "species": n.species.value,
+                "district": n.district,
+                "taluk": n.taluk,
+                "reported_on": n.reported_on.isoformat(),
+                "source_name": n.source_name,
+                "source_url": n.source_url,
+            }
+            for n in active_notices_for_user(db, user)
+        ],
         "recent_activity": activity,
     }

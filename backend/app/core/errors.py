@@ -22,6 +22,7 @@ _CODES = {
     404: "not_found",
     409: "conflict",
     422: "validation_error",
+    429: "rate_limited",
     503: "service_unavailable",
 }
 
