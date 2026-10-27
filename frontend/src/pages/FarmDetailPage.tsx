@@ -1,4 +1,4 @@
-import { ArrowLeft, Pencil, Plus, ShieldCheck, Sparkles, Trash2 } from 'lucide-react';
+import { ArrowLeft, Pencil, Plus, ShieldCheck, Sparkles, Stethoscope, Trash2 } from 'lucide-react';
 import { useCallback, useState, type ReactNode } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Api, type RecordKind, type RecordMap } from '../api/endpoints';
@@ -14,12 +14,13 @@ import { daysAgo, fmtDate, fmtDateTime, fmtNum, humanize } from '../lib/format';
 import { useAsync } from '../lib/useAsync';
 import { AlertList } from './AlertsPage';
 import { ScreeningHistory } from './ScreeningPage';
+import { CheckHistory } from './SymptomCheckerPage';
 
-const TABS = ['overview', 'vaccinations', 'mortality', 'hygiene', 'visitors', 'environment', 'assessments', 'screening'] as const;
+const TABS = ['overview', 'vaccinations', 'mortality', 'hygiene', 'visitors', 'environment', 'assessments', 'symptoms', 'screening'] as const;
 type Tab = (typeof TABS)[number];
 const TAB_LABEL: Record<Tab, string> = {
   overview: 'Overview', vaccinations: 'Vaccinations', mortality: 'Mortality', hygiene: 'Hygiene', visitors: 'Visitors',
-  environment: 'Environment', assessments: 'Assessments', screening: 'Screening history',
+  environment: 'Environment', assessments: 'Assessments', symptoms: 'Symptom checks', screening: 'Screening history',
 };
 
 export default function FarmDetailPage() {
@@ -93,6 +94,11 @@ export default function FarmDetailPage() {
         {(['vaccinations', 'mortality', 'hygiene', 'visitors', 'environment'] as const).includes(tab as RecordKind) &&
           <RecordsTab farm={f} kind={tab as RecordKind} user={user!} onChanged={(m) => setToast(m)} />}
         {tab === 'assessments' && <AssessmentHistory farmId={f.id} />}
+        {tab === 'symptoms' && (
+          <Card title="Symptom checks saved for this farm" actions={<Link to={`/symptom-checker?farm=${f.id}`} className="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-3.5 py-2 text-sm font-medium text-white hover:bg-brand-700"><Stethoscope className="h-4 w-4" aria-hidden /> Check symptoms</Link>}>
+            <CheckHistory farmId={f.id} />
+          </Card>
+        )}
         {tab === 'screening' && <Card title="Animal-health screening history for this farm"><ScreeningHistory farmId={f.id} /></Card>}
       </div>
 

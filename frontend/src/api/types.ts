@@ -124,3 +124,39 @@ export interface DataGovPreview {
   resource_id: string; title: string | null; total: number | null; source_url: string;
   fields: { id: string; name: string; type: string }[]; sample_records: Record<string, unknown>[];
 }
+
+export interface SymptomResult {
+  disease_id: string; name: string; match_score: number; strength: 'strong' | 'moderate' | 'weak'; category: string;
+  urgent_report: boolean; zoonotic: boolean; summary: string; matched_signs: string[]; also_check_for: string[];
+  actions: string[]; notes: string[]; sources: { title: string; url: string }[];
+}
+export interface SymptomCheckResult {
+  species: 'pig' | 'poultry'; kb_version: string; review_status: string; selected_signs: string[];
+  results: SymptomResult[]; urgent_warning: string | null; general_advice: string[]; disclaimer: string; no_match: boolean;
+  id?: number;
+}
+export interface SymptomLibrary {
+  kb_version: string; review_status: string; counts: Record<string, number>; sign_counts: Record<string, number>;
+  species: Record<'pig' | 'poultry', {
+    signs: { group: string; items: { id: string; label: string; help: string }[] }[];
+    age_groups: { id: string; label: string }[];
+    diseases: {
+      id: string; name: string; category: string; urgent_report: boolean; zoonotic: boolean; summary: string; actions: string[];
+      signs: { label: string; weight: number }[]; ages: string[]; sources: { title: string; url: string }[];
+    }[];
+  }>;
+}
+export interface SavedSymptomCheck {
+  id: number; created_at: string; species: string; age_group: string | null; sudden_deaths: boolean; signs: string[];
+  results: SymptomResult[]; kb_version: string; urgent: boolean; animal_identifier: string | null; farm_id: number | null;
+  created_by_id: number | null; confirmed_diagnosis: string | null; diagnosis_method: string | null;
+  confirmation_notes: string | null; confirmed_at: string | null;
+}
+export interface PublicWeatherLocation {
+  district: string; taluk: string; latitude: number; longitude: number; ok: boolean; error?: string;
+  temperature_c?: number | null; relative_humidity_pct?: number | null; weather_code?: number | null;
+  max_next_days_c?: number | null; heat_advisory?: boolean; observed_at?: string | null;
+}
+export interface PublicNotice {
+  id: number; disease: string; species: string; district: string; taluk: string | null; reported_on: string; source_name: string; source_url: string;
+}

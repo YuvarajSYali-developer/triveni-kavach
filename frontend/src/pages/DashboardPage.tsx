@@ -5,6 +5,8 @@ import { Api } from '../api/endpoints';
 import { useAuth } from '../auth/AuthContext';
 import { SERIES, SimpleBars, SpeciesBars } from '../components/charts';
 import { NoticeLine, TalukWeatherTable } from '../components/external';
+import TalukMap from '../components/TalukMap';
+import { TALUK_COORDS } from '../lib/constants';
 import { Card, EmptyState, ErrorState, Notice, PageHeader, Spinner, StatCard, StatusBadge } from '../components/ui';
 import { daysAgo, fmtDate, fmtDateTime, fmtNum, humanize, isoDate } from '../lib/format';
 import { useAsync } from '../lib/useAsync';
@@ -164,8 +166,20 @@ export default function DashboardPage() {
                         </tbody>
                       </table>
                     </div>
-                    <p className="mt-2 text-xs text-stone-500">A map is not shown: farms store taluk-level locations only, and precise coordinates are not collected.</p>
                   </Card>
+                  <Card title="Farm map by taluk">
+                    <TalukMap height={300} points={data.farms.by_taluk.filter((t) => TALUK_COORDS[t.taluk]).map((t) => ({
+                      id: t.taluk, position: TALUK_COORDS[t.taluk], label: t.taluk,
+                      color: t.open_alerts ? '#dc2626' : '#15803d', radius: 8 + Math.min(14, t.farms * 2),
+                      tooltip: `${t.taluk}: ${t.farms}`,
+                      popup: <div className="text-xs"><p className="font-semibold">{t.taluk}</p><p>{t.farms} farm(s) · {t.open_alerts} active alert(s)</p></div>,
+                    }))} legend={<div className="flex gap-3"><span className="inline-flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-full bg-red-600" />active alerts</span><span className="inline-flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-full bg-green-700" />no active alerts</span></div>} />
+                    <p className="mt-2 text-xs text-stone-500">Farms store taluk-level locations only, so each marker sits at the taluk headquarters and its size reflects the number of farms. Precise farm coordinates are not collected.</p>
+                  </Card>
+                </div>
+              )}
+              {user.role === 'admin' && (
+                <div className="grid gap-6">
                   <Card title="Environmental readings and screenings in period">
                     <EnvSummary readings={data.environment.readings_in_period} />
                     <p className="mt-3 text-sm text-stone-600">Animal-health screening requests: <strong>{data.screenings_in_period}</strong></p>

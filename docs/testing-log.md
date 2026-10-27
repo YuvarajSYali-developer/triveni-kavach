@@ -153,3 +153,18 @@ and is labelled "Preview · sample values"; it shows no statistics presented as 
 A first e2e attempt reused the previous run's database and failed 4 steps on duplicate
 records ("resolved to 2 elements"); this was the test setup, not the app. Re-run on a fresh
 database: all passed.
+
+## Update: symptom checker and maps (2026-10-27)
+
+| Check | Result |
+|---|---|
+| Backend lint | `ruff check .` / `ruff format --check .` pass (56 files) |
+| Backend tests (SQLite) | **101 passed**, 0 failed (21 new in `test_symptoms.py`: knowledge-base integrity, textbook-sign rankings for ASF, swine influenza, FMD, neonatal diarrhoea, mange, ND, HPAI, IBD, coccidiosis and Marek’s disease, urgent warning, score bounds, age effect, validation, public endpoint stores nothing, save/history/confirm/export permissions, training guard) |
+| Migration 0003 | `alembic upgrade head` → `alembic check` → `downgrade -1` → `upgrade head` pass |
+| Frontend | typecheck pass · lint 0 warnings · Vitest 10 passed · production build pass |
+| End-to-end journey (fresh database) | **27/27 passed** — new: landing live-map section and quick checker, public checker (ASF signs → "Report immediately"), disease library, farmer saves a check from a farm, admin confirms the diagnosis |
+
+Browser console errors in the e2e run were all `ERR_TUNNEL_CONNECTION_FAILED` for map tiles
+and Open-Meteo, which this sandbox's network policy blocks; the map shows a notice when
+tiles cannot load and the markers still render. Earlier timing flake fixed: the telemetry
+simulator's forced excursion now always exceeds the configured limits.

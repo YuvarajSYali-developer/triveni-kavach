@@ -1,6 +1,7 @@
 import { api } from './client';
 import type {
-  DataGovPreview, ImportResult, LivestockStat, OutbreakNotice, Weather,
+  DataGovPreview, ImportResult, LivestockStat, OutbreakNotice, Weather, SymptomCheckResult, SymptomLibrary,
+  SavedSymptomCheck, PublicWeatherLocation, PublicNotice, Attribution,
   Alert, Assessment, AssessmentRun, DashboardSummary, EnvReading, Farm, Hygiene, ModelStatus, Mortality, Page,
   Screening, User, Vaccination, Visitor,
 } from './types';
@@ -73,6 +74,15 @@ export const Api = {
   dataGovStatus: () => api<{ configured: boolean }>('/statistics/livestock/datagov/status'),
   dataGovPreview: (resource_id: string) => api<DataGovPreview>('/statistics/livestock/datagov/preview', { query: { resource_id } }),
   dataGovImport: (body: unknown) => api<ImportResult>('/statistics/livestock/datagov/import', { method: 'POST', body }),
+
+  publicLibrary: () => api<SymptomLibrary>('/public/symptom-library'),
+  publicCheck: (body: unknown) => api<SymptomCheckResult>('/public/symptom-check', { method: 'POST', body }),
+  publicWeather: () => api<{ locations: PublicWeatherLocation[]; attribution: Attribution }>('/public/weather-summary'),
+  publicNotices: () => api<PublicNotice[]>('/public/notices'),
+  saveSymptomCheck: (body: unknown) => api<SymptomCheckResult & { id: number }>('/symptom-checks', { method: 'POST', body }),
+  symptomChecks: (query: { farm_id?: number; confirmed?: boolean; limit?: number; offset?: number } = {}) =>
+    api<Page<SavedSymptomCheck>>('/symptom-checks', { query }),
+  confirmSymptomCheck: (id: number, body: unknown) => api<SavedSymptomCheck>(`/symptom-checks/${id}/confirm`, { method: 'POST', body }),
 
   screenings: (query: { farm_id?: number; limit?: number; offset?: number } = {}) => api<Page<Screening>>('/screening', { query }),
 };

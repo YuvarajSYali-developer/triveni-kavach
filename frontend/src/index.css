@@ -28,3 +28,11 @@
     background-size: 40px 40px;
   }
 }
+
+@layer components {
+  .leaflet-container { font-family: Inter, system-ui, sans-serif; }
+  .taluk-tooltip { @apply rounded-md border-0 bg-ink-900/90 px-1.5 py-0.5 text-[11px] font-semibold text-white shadow-none; }
+  .taluk-tooltip::before { display: none; }
+  .reveal { opacity: 0; transform: translateY(16px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }
+  .reveal.is-visible { opacity: 1; transform: none; }
+}

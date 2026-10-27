@@ -42,13 +42,42 @@ async function addRecord(tab, button, fill) {
 }
 
 let farmUrl;
-await step('0. landing page renders and leads to sign-in', async () => {
+await step('0. landing page renders, live map section, quick checker and sign-in link', async () => {
   await page.goto(`${BASE}/`);
   await page.getByRole('heading', { level: 1 }).waitFor();
-  await page.getByText('Preview · sample values').waitFor();
+  await page.getByText('Live from Haveri district').waitFor();
+  await page.locator('.leaflet-container').first().waitFor();
+  await page.getByRole('button', { name: /Red or purple skin/ }).first().click();
+  await page.getByText(/\/100/).first().waitFor();
+  await page.getByText('Know the diseases that must be reported').waitFor();
+  await page.waitForTimeout(600);
+  await page.evaluate(() => document.querySelectorAll('.reveal').forEach((e) => e.classList.add('is-visible')));
+  await page.waitForTimeout(1200);
   await shot('00-landing');
   await page.getByRole('link', { name: 'Sign in to the portal' }).click();
   await page.waitForURL(/\/login$/);
+});
+await step('0b. public symptom checker ranks ASF signs and warns to report', async () => {
+  await page.goto(`${BASE}/check`);
+  await page.getByRole('heading', { name: 'Pig & poultry symptom checker' }).waitFor();
+  await page.getByRole('button', { name: /Sow \/ boar/ }).click();
+  await page.getByLabel(/Sudden or unusually high deaths/).check();
+  await page.getByPlaceholder('Filter signs, e.g. diarrhoea').fill('fever');
+  await page.getByRole('button', { name: /Fever \/ hot to touch/ }).click();
+  await page.getByPlaceholder('Filter signs, e.g. diarrhoea').fill('');
+  await page.getByRole('button', { name: /Red or purple skin/ }).first().click();
+  await page.getByRole('button', { name: 'Check symptoms' }).click();
+  await page.getByText('Report immediately').first().waitFor();
+  await page.getByText('African swine fever').first().waitFor();
+  await shot('13-public-checker');
+});
+await step('0c. disease library lists sourced conditions', async () => {
+  await page.goto(`${BASE}/diseases`);
+  await page.getByRole('heading', { name: /Classical swine fever/ }).waitFor();
+  await page.getByRole('button', { name: /Poultry/ }).click();
+  await page.getByRole('heading', { name: /Newcastle disease/ }).waitFor();
+  await page.getByRole('link', { name: /WOAH/ }).first().waitFor();
+  await shot('14-disease-library');
 });
 await step('1. backend health visible on login page', async () => {
   await page.goto(`${BASE}/login`);
@@ -165,8 +194,20 @@ await step('7b. acknowledge an alert from the alerts page', async () => {
   if (await page.getByRole('button', { name: 'Resolve' }).count()) throw new Error('farmer should not see Resolve');
   await shot('05-alerts');
 });
+await step('farmer saves a symptom check to the farm', async () => {
+  await page.goto(`${farmUrl}`);
+  await page.getByRole('tab', { name: 'Symptom checks' }).click();
+  await page.getByRole('link', { name: 'Check symptoms' }).click();
+  await page.getByRole('heading', { name: 'Symptom checker' }).waitFor();
+  await page.getByRole('button', { name: /Fever \/ hot to touch/ }).click();
+  await page.getByRole('button', { name: /diamond-shaped/i }).click();
+  await page.getByRole('button', { name: 'Check and save to records' }).click();
+  await page.getByText(/Saved as check #/).waitFor();
+  await page.getByRole('cell', { name: /Swine erysipelas/ }).waitFor();
+  await shot('15-app-symptom-checker');
+});
 await step('10-11. pig screening returns model output and is stored', async () => {
-  await page.getByRole('link', { name: 'Health screening' }).click();
+  await page.getByRole('link', { name: 'AI screening (experimental)' }).click();
   await page.getByText('Poultry — not supported').waitFor({ state: 'attached' });
   await page.getByLabel('Body temperature (°C)').fill('41');
   await page.getByLabel('Heart rate (beats/min)').fill('110');
@@ -247,6 +288,15 @@ await step('admin users page and delete-confirmation', async () => {
   await page.getByRole('button', { name: 'Delete' }).click();
   await page.getByRole('dialog').getByText(/cannot be undone/).waitFor();
   await page.getByRole('dialog').getByRole('button', { name: 'Cancel' }).click();
+});
+await step('admin confirms the saved symptom check diagnosis', async () => {
+  await page.getByRole('link', { name: 'Symptom checker' }).click();
+  await page.getByRole('button', { name: 'Confirm' }).first().click();
+  const d = page.getByRole('dialog');
+  await d.getByLabel('Confirmed by').selectOption('laboratory');
+  await d.getByRole('button', { name: 'Save diagnosis' }).click();
+  await d.waitFor({ state: 'detached' });
+  await page.getByText('Laboratory').first().waitFor();
 });
 await step('veterinarian sees only assigned farms', async () => {
   await logout();

@@ -36,8 +36,9 @@ def generate(
         rh = 62 - 10 * math.sin(phase) + rng.gauss(0, 2.5)
         nh3 = max(0.0, 9 + rng.gauss(0, 2.0))
         if excursion_at is not None and abs(i - excursion_at) <= 1:
-            temp += 8
-            nh3 += 22
+            # Always exceed the provisional limits, whatever the time of day.
+            temp = max(temp + 8, 33.5 + rng.random())
+            nh3 = max(nh3 + 22, 27.0 + rng.random())
         out.append(
             EnvironmentalObservation(
                 farm_id=farm_id,

@@ -9,7 +9,8 @@ import type { OutbreakNotice } from '../api/types';
 import { useAuth } from '../auth/AuthContext';
 import { SourceLink } from '../components/external';
 import { Button, Card, ConfirmDialog, EmptyState, ErrorState, Field, Modal, Notice, PageHeader, Pager, Spinner, StatusBadge, SuccessToast, Table } from '../components/ui';
-import { HAVERI_TALUKS } from '../lib/constants';
+import TalukMap from '../components/TalukMap';
+import { HAVERI_TALUKS, TALUK_COORDS } from '../lib/constants';
 import { errorMessage } from '../lib/errors';
 import { fmtDate, humanize, isoDate } from '../lib/format';
 import { useAsync } from '../lib/useAsync';
@@ -49,6 +50,7 @@ export default function NoticesPage() {
         These notices are entered by department staff from official publications (for example state animal husbandry department orders
         or national outbreak reports). The system does not detect or predict outbreaks. Always confirm details at the linked source.
       </Notice></div>
+      {data && <NoticeMap notices={data.items} />}
       <Card>
         <div className="mb-4 flex flex-wrap gap-2">
           <select aria-label="Status" className="input !w-auto" value={status} onChange={(e) => { setStatus(e.target.value); setOffset(0); }}>
@@ -90,6 +92,28 @@ export default function NoticesPage() {
         message="Prefer marking a notice as closed, which keeps the record. Deleting removes it permanently." />
       <SuccessToast message={toast} onClose={closeToast} />
     </div>
+  );
+}
+
+function NoticeMap({ notices }: { notices: OutbreakNotice[] }) {
+  const byTaluk = new Map<string, OutbreakNotice[]>();
+  notices.filter((n) => n.district.toLowerCase() === 'haveri' && n.taluk && TALUK_COORDS[n.taluk])
+    .forEach((n) => byTaluk.set(n.taluk!, [...(byTaluk.get(n.taluk!) ?? []), n]));
+  const districtWide = notices.filter((n) => n.district.toLowerCase() === 'haveri' && !(n.taluk && TALUK_COORDS[n.taluk])).length;
+  return (
+    <Card title="Notices in Haveri district (this list)" className="mb-6">
+      <TalukMap height={300} points={HAVERI_TALUKS.map((t) => {
+        const list = byTaluk.get(t) ?? [];
+        return {
+          id: t, position: TALUK_COORDS[t], label: t, color: list.length ? '#dc2626' : '#a8a29e', radius: list.length ? 14 : 8,
+          tooltip: list.length ? `${t}: ${list.length}` : undefined,
+          popup: <div className="text-xs"><p className="font-semibold">{t}</p>{list.length ? list.map((n) => <p key={n.id}>{n.disease} · {fmtDate(n.reported_on)}</p>) : <p>No notice in this list</p>}</div>,
+        };
+      })} />
+      <p className="mt-2 text-xs text-stone-500">
+        Markers show taluks named in the notices currently listed below.{districtWide > 0 && ` ${districtWide} notice(s) cover Haveri district without naming a taluk.`}
+      </p>
+    </Card>
   );
 }
 

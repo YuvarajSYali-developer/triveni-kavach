@@ -1,6 +1,6 @@
 # Database schema
 
-Managed by Alembic (`backend/alembic/versions/0001_initial_schema.py`). Default database:
+Managed by Alembic (`backend/alembic/versions/0001`–`0003`). Default database:
 SQLite file `backend/triveni_kavach.db`; PostgreSQL is supported via `DATABASE_URL`.
 Enumerations are stored as short strings (non-native enums) for portability.
 
@@ -154,6 +154,7 @@ erDiagram
 | `animal_screenings` | inputs, model version (artifact hash), raw top/alternative scores, whether the top label was observed for the species in training, warnings |
 | `audit_logs` | actor, action, entity, farm, summary — no passwords or tokens |
 | `outbreak_notices` (migration 0002) | official notices: disease, species (pig/poultry/both), state/district/taluk, reported/closed dates, status; **`source_name` and `source_url` mandatory** |
+| `symptom_checks` (migration 0003) | species, age group, sudden-deaths flag, selected signs (JSON), top-3 results (JSON), knowledge-base version, urgent flag, optional `farm_id` (CASCADE) and animal/batch ID, creator; veterinarian confirmation: `confirmed_diagnosis`, `diagnosis_method` ∈ clinical / laboratory / post_mortem, notes, confirmer, time |
 | `livestock_statistics` (migration 0002) | district population per species and reference year with source name/URL and `import_method` (manual / csv / data.gov.in); unique per state+district+species+year+source |
 
 All farm-scoped tables cascade on farm deletion (administrator-only, with a confirmation

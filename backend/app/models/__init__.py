@@ -359,6 +359,31 @@ class LivestockStatistic(TimestampMixin, Base):
     created_by_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
 
 
+class SymptomCheck(Base):
+    """A saved symptom-checker run. When a veterinarian later records the confirmed
+    diagnosis, the row becomes a real, labelled case for future model training."""
+
+    __tablename__ = "symptom_checks"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    created_at: Mapped[datetime] = mapped_column(UTCDateTime(), default=utcnow, index=True)
+    species: Mapped[str] = mapped_column(String(20), index=True)
+    age_group: Mapped[str | None] = mapped_column(String(20))
+    sudden_deaths: Mapped[bool] = mapped_column(Boolean, default=False)
+    signs: Mapped[list[str]] = mapped_column(JSON)
+    results: Mapped[list[dict[str, Any]]] = mapped_column(JSON)
+    kb_version: Mapped[str] = mapped_column(String(40))
+    urgent: Mapped[bool] = mapped_column(Boolean, default=False)
+    animal_identifier: Mapped[str | None] = mapped_column(String(60))
+    farm_id: Mapped[int | None] = mapped_column(ForeignKey("farms.id", ondelete="CASCADE"), index=True)
+    created_by_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), index=True)
+    confirmed_diagnosis: Mapped[str | None] = mapped_column(String(160))
+    diagnosis_method: Mapped[str | None] = mapped_column(String(20))  # clinical | laboratory | post_mortem
+    confirmation_notes: Mapped[str | None] = mapped_column(Text)
+    confirmed_by_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    confirmed_at: Mapped[datetime | None] = mapped_column(UTCDateTime())
+
+
 RECORD_MODELS = {
     "vaccinations": VaccinationRecord,
     "mortality": MortalityRecord,

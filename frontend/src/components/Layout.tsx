@@ -1,5 +1,5 @@
 import {
-  BarChart3, Bell, Cpu, Home, Info, LogOut, Megaphone, Menu, ShieldCheck, Stethoscope, Users, Warehouse, X,
+  BarChart3, Bell, Cpu, FlaskConical, Home, Info, LogOut, Megaphone, Menu, ShieldCheck, Stethoscope, Users, Warehouse, X,
 } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
@@ -20,7 +20,8 @@ const GROUPS: { title: string; items: Item[] }[] = [
     title: 'Farm operations',
     items: [
       { to: '/farms', label: 'Farms & records', icon: <Warehouse className="h-[18px] w-[18px]" /> },
-      { to: '/screening', label: 'Health screening', icon: <Stethoscope className="h-[18px] w-[18px]" /> },
+      { to: '/symptom-checker', label: 'Symptom checker', icon: <Stethoscope className="h-[18px] w-[18px]" /> },
+      { to: '/screening', label: 'AI screening (experimental)', icon: <FlaskConical className="h-[18px] w-[18px]" /> },
     ],
   },
   {

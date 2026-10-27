@@ -3,8 +3,9 @@
 A web application for recording and reviewing biosecurity practice on pig and poultry farms:
 farm registration, vaccination schedules, mortality, hygiene inspections, visitor entry
 precautions and environmental readings, with role-based dashboards, an explainable
-rule-based biosecurity assessment with alerts, and an exploratory animal-health screening
-module built on a reused machine-learning model.
+rule-based biosecurity assessment with alerts, a pig and poultry **symptom checker** built
+from published veterinary references, live weather and official notices on interactive
+maps, and an exploratory animal-health screening module built on a reused machine-learning model.
 
 * **Problem statement**: SIH 25006 — Digital Farm Management Portal for Implementing
   Biosecurity Measures in Pig and Poultry Farms.
@@ -16,14 +17,14 @@ module built on a reused machine-learning model.
 
 | Layer | Stack |
 |---|---|
-| Frontend | React 18, TypeScript, Vite, Tailwind CSS, React Router, Recharts, Lucide, React Hook Form + Zod |
+| Frontend | React 18, TypeScript, Vite, Tailwind CSS, React Router, Recharts, Leaflet + react-leaflet, Lucide, React Hook Form + Zod |
 | Backend | Python 3.12, FastAPI, Pydantic 2, SQLAlchemy 2, Alembic, PyJWT, bcrypt |
 | Database | SQLite (default, local) · PostgreSQL-compatible (tested on PostgreSQL 16) |
 | ML | Reused XGBoost 3.1 classifier + scikit-learn LabelEncoder, pandas, NumPy |
 | Tests | pytest, Vitest + Testing Library, Playwright (end-to-end script), ruff, ESLint |
 
 Documentation: [architecture](docs/architecture.md) · [database schema](docs/database-schema.md) ·
-[source audit](docs/source-audit.md) · [model limitations](docs/model-limitations.md) ·
+[source audit](docs/source-audit.md) · [**symptom checker**](docs/symptom-checker.md) · [model limitations](docs/model-limitations.md) ·
 [IoT concept](docs/iot-concept.md) · [**deployment guide**](docs/deployment.md) · [testing log](docs/testing-log.md) ·
 [implementation log](docs/implementation-log.md)
 
@@ -142,6 +143,16 @@ Results of the runs performed for this version are in [docs/testing-log.md](docs
 
 ## What the application does
 
+* **Public website** (no sign-in): landing page with a live map of the eight Haveri taluks
+  (current temperature and 3-day heat outlook) and active official notices, an instant
+  "Try it now" symptom panel, the full symptom checker at `/check` and a disease library at
+  `/diseases`.
+* **Symptom checker**: select signs, age group and sudden deaths → ranked pig or poultry
+  diseases with matched signs, signs to look for next, actions, sources and a
+  "Report immediately" warning for reportable diseases. Signed-in users can save checks to a
+  farm; veterinarians record the confirmed diagnosis, building a real labelled dataset.
+  See [docs/symptom-checker.md](docs/symptom-checker.md).
+
 * **Roles**: department administrator (all farms, user management), veterinarian
   (assigned farms), farmer (own farms). Enforced by the API; inaccessible items return 404.
 * **Farms**: create, edit, search, filter by type and taluk; delete (administrator, with confirmation).
@@ -167,6 +178,8 @@ Results of the runs performed for this version are in [docs/testing-log.md](docs
 | Official disease outbreak notices | Government publications (state department orders, national reports) | Entered by administrators/veterinarians; a source name and link are mandatory. Shown as district advisories on matching farms and dashboards. |
 | District pig and poultry populations | Livestock Census tables, e.g. on [data.gov.in](https://data.gov.in) | Imported via the data.gov.in API (free key; preview then map columns), CSV upload, or manual entry, always with source and reference year. |
 | Farm records | Farmers, veterinarians, administrators | Entered in the app. The public deployment contains **no fictional farm records**. |
+| Disease signs and actions | WOAH disease cards, Merck Veterinary Manual, *Diseases of Swine*, *Diseases of Poultry* | Summarised into the symptom-checker knowledge base; every result links its sources. Pending veterinary review. |
+| Base maps | © OpenStreetMap contributors, © CARTO (Voyager tiles) | Loaded by the browser via Leaflet; free, no API key, attribution shown on every map. |
 
 ## Deploying online
 
@@ -184,8 +197,11 @@ records.
 * Rule thresholds and weights are **provisional** and need veterinary review. The score is
   not a disease probability.
 * No physical IoT integration; `device` source is disabled.
-* No maps (farms store administrative locations only), no SMS/e-mail notifications, no
-  Kannada interface, no offline mode, no report export.
+* The symptom checker is a match index over a draft knowledge base that has **not yet been
+  reviewed by a veterinarian**; it is not a diagnosis. See [symptom-checker](docs/symptom-checker.md).
+* Maps show taluk-level markers at taluk headquarters only (farms store administrative
+  locations, not coordinates). No SMS/e-mail notifications, no Kannada interface, no
+  offline mode, no report export.
 * Access tokens are kept in `sessionStorage`; there is no refresh token. Failed sign-ins are
   rate-limited per address and e-mail (in memory, single instance).
 * Live weather covers the eight Haveri taluks only (lookup points are taluk headquarters towns).

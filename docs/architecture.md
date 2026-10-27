@@ -116,8 +116,13 @@ GET /weather?district&taluk   GET /weather/locations   GET /farms/{id}/weather
 GET|POST /outbreaks   PUT|DELETE /outbreaks/{id}   GET /farms/{id}/advisories
 GET|POST /statistics/livestock   DELETE /statistics/livestock/{id}   POST /statistics/livestock/import-csv
 GET /statistics/livestock/datagov/{status|preview}   POST /statistics/livestock/datagov/import
+GET /public/symptom-library   POST /public/symptom-check   GET /public/weather-summary   GET /public/notices
+POST|GET /symptom-checks   POST /symptom-checks/{id}/confirm   GET /symptom-checks/export
 GET /health
 ```
+
+The `/public/*` endpoints need no sign-in and store nothing; they serve the public website
+(landing page, `/check`, `/diseases`).
 
 ## Frontend layout (`frontend/src`)
 
@@ -129,6 +134,11 @@ GET /health
 | `components/ui.tsx` | Button, Card, StatusBadge, Spinner, ErrorState (with recovery hints), EmptyState, Modal, ConfirmDialog, Field, StatCard, Table, Pager, SuccessToast |
 | `components/charts.tsx` | Recharts wrappers with a table-view toggle and a validated categorical palette |
 | `components/FarmForm.tsx`, `RecordForms.tsx` | React Hook Form + Zod forms mirroring backend validation; server field errors are mapped back to inputs |
+| `components/TalukMap.tsx` | Leaflet map of Haveri district with taluk-level circle markers (CARTO/OpenStreetMap tiles, no API key) |
+| `components/SymptomChecker.tsx` | Species → age → signs → ranked, explained results; public and signed-in (save to farm) modes |
+| `components/PublicShell.tsx` | Navigation, footer (data attributions) and page frame for public pages |
+| `pages/LandingPage.tsx`, `PublicCheckerPage.tsx`, `DiseaseLibraryPage.tsx` | Public website: live taluk map, quick checker, full checker, disease library |
+| `pages/SymptomCheckerPage.tsx` | Signed-in checker, saved-check history and veterinarian confirmation |
 | `pages/*` | Login, role-specific Dashboard, Farms, Farm detail (records tabs, assessments, environment, screening history), Alerts, Screening, IoT concept, Users (admin), About |
 
 ## Testing strategy

@@ -83,3 +83,16 @@ not veterinary standards, and are not validated predictors of disease.
 
 Known gaps: thresholds are uniform across species, ages and seasons; mortality uses
 recorded population counts that may be stale; the engine only sees what is recorded.
+
+## 3. Symptom checker (knowledge-based, new)
+
+Not a trained model. It ranks pig and poultry diseases by how well the selected signs match
+a knowledge base summarised from WOAH disease cards and standard veterinary textbooks
+(version `2026.10-draft`, **pending veterinary review**). The output is a transparent match
+index out of 100 — not a probability and not a diagnosis. Details, formula and limitations:
+[symptom-checker.md](symptom-checker.md).
+
+The route to a genuine data-driven model is built in: veterinarians record confirmed
+diagnoses for saved checks; administrators export them; `scripts/train_from_confirmed_cases.py`
+trains only when there are at least 30 confirmed cases for at least two diagnoses and reports
+cross-validated metrics.

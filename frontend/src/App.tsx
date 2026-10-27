@@ -17,6 +17,9 @@ const UsersPage = lazy(() => import('./pages/UsersPage'));
 const AboutPage = lazy(() => import('./pages/AboutPage'));
 const NoticesPage = lazy(() => import('./pages/NoticesPage'));
 const StatisticsPage = lazy(() => import('./pages/StatisticsPage'));
+const SymptomCheckerPage = lazy(() => import('./pages/SymptomCheckerPage'));
+const PublicCheckerPage = lazy(() => import('./pages/PublicCheckerPage'));
+const DiseaseLibraryPage = lazy(() => import('./pages/DiseaseLibraryPage'));
 
 function RequireAuth({ children, roles }: { children: JSX.Element; roles?: Role[] }) {
   const { user, loading } = useAuth();
@@ -45,11 +48,14 @@ export default function App() {
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/check" element={<PublicCheckerPage />} />
+            <Route path="/diseases" element={<DiseaseLibraryPage />} />
             <Route element={<RequireAuth><Layout /></RequireAuth>}>
               <Route path="dashboard" element={<DashboardPage />} />
               <Route path="farms" element={<FarmsPage />} />
               <Route path="farms/:farmId" element={<FarmDetailPage />} />
               <Route path="alerts" element={<AlertsPage />} />
+              <Route path="symptom-checker" element={<SymptomCheckerPage />} />
               <Route path="screening" element={<ScreeningPage />} />
               <Route path="notices" element={<NoticesPage />} />
               <Route path="statistics" element={<StatisticsPage />} />

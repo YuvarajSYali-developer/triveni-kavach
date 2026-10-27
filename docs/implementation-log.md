@@ -127,3 +127,20 @@ shared rate-limit store for multiple backend instances.
 | App shell | Dark grouped sidebar, user initials avatar, date, fade-in | Implemented |
 | Components | Restyled cards, badges (with status dots), stat cards (accent icons, alert bar), tables, modals, toasts | Implemented |
 | Routing | `/` landing (public), `/dashboard` dashboard | Implemented |
+
+## Update — symptom checker and maps (2026-10-27)
+
+| Area | Work | Status |
+|---|---|---|
+| Symptom checker backend | Knowledge base (14 pig, 13 poultry conditions; 33/31 signs; sources), scoring engine, public and signed-in endpoints, saved checks (migration 0003), veterinarian confirmation, CSV export, guarded training script | Implemented, 21 new tests |
+| Public website | Landing page rebuilt: live taluk weather map, active notices, instant "Try it now" checker, reportable-disease cards, FAQ, scroll reveal; new `/check` and `/diseases` pages | Implemented, e2e |
+| Maps | Leaflet with CARTO Voyager / OpenStreetMap tiles (no API key needed). Landing (weather), admin dashboard (farms and active alerts per taluk), notices page (notices per taluk) | Implemented; tiles could not load inside the sandbox (blocked network), markers verified |
+| App | Sidebar "Symptom checker"; screening relabelled "AI screening (experimental)"; farm "Symptom checks" tab | Implemented |
+
+Decisions:
+* No Google Maps key was available, and OpenStreetMap-based tiles need none, so Leaflet +
+  CARTO tiles were used. Attribution is shown on every map and in the footer.
+* Markers sit at taluk headquarters because farms store taluk-level locations only.
+* Concealing where a pre-trained model came from was declined; no third-party model was
+  added. The checker instead cites its sources openly.
+* The public checker stores nothing; saving requires sign-in and a farm the user can access.
