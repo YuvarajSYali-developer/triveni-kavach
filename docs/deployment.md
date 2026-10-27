@@ -90,6 +90,17 @@ Open the Vercel address. The login page should say "Backend connected · databas
 production". If it says the backend is unreachable, wait a minute (Render may be waking up)
 and refresh.
 
+Then check the public pages (no sign-in needed):
+
+| Page | What you should see |
+|---|---|
+| `/` | Map of the eight Haveri taluks with live temperatures; "Try it now" panel ranks diseases as you tap signs |
+| `/check` | Full symptom checker; e.g. pig + fever + red/purple skin + sudden deaths → "Report immediately" |
+| `/diseases` | 14 pig and 13 poultry conditions with source links |
+
+Maps use free CARTO/OpenStreetMap tiles through Leaflet, so no Google Maps or other API key
+is needed. If tiles are blocked on a network the map shows a notice and the markers still work.
+
 ## 6. Add real data
 
 * **Weather** works immediately for Haveri taluks (Open-Meteo, no key needed).
